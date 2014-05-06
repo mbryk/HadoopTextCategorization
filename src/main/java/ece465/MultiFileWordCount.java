@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.examples;
+package ece465;
 
 import java.io.DataInput;
 import java.io.DataOutput;

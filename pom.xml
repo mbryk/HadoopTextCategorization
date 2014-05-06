@@ -142,7 +142,7 @@
        <configuration>
         <archive>
           <manifest>
-            <mainClass>org.apache.hadoop.examples.WordCount</mainClass>
+            <mainClass>ece465.WordCount</mainClass>
           </manifest>
         </archive>
       </configuration>
@@ -213,9 +213,6 @@
          <debug>true</debug>
          <debuglevel></debuglevel>
          <optimize>false</optimize>
-         <compilerArgs>
-           <arg>-Xlint</arg>
-         </compilerArgs>
        </configuration>
      </plugin>
      <plugin>
