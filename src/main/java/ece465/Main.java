@@ -40,12 +40,19 @@ public class Main extends Configured implements Tool {
         jobWC.setOutputKeyClass(Text.class);
         jobWC.setOutputValueClass(IntWritable.class);
 
-        jobWC.setMapperClass(MapClassWC.class);
+        jobWC.setMapperClass(MapClassWC.class); // Map to [wordID 1]
         jobWC.setCombinerClass(IntSumReducer.class);
         jobWC.setReducerClass(IntSumReducer.class);
 
+//        if(dontHaveTrainingData){
+//            jobWC.runOnTrainingData -> trainingfile.txt
+//        }
+        //jobWC.runOnTestData -> testfile.txt
+
         // this will output [ID1word=C, ID1word2=C];
         // Now, input this long vector into jobKNN
+
+        //jobKNN will run on trainingfile.txt
 
         Job jobKNN = new Job(getConf());
         jobKNN.setJobName("KNN");
@@ -62,7 +69,6 @@ public class Main extends Configured implements Tool {
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         return job.waitForCompletion(true) ? 0 : 1;
-
 
     }
 
