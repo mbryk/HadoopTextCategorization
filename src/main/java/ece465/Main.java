@@ -31,18 +31,21 @@ public class Main extends Configured implements Tool {
 
     public int run(String[] args) throws Exception {
         Job jobWC = new Job(getConf());
-        //jobWC.setJarByClass(MultiFileWordCount.class);
+        jobWC.setJarByClass(Main.class);
                 
         jobWC.setJobName("WordCount");
 
         jobWC.setInputFormatClass(InputFormatWC.class);
         // the keys are words (strings), the values are counts (ints)
-        jobWC.setOutputKeyClass(Text.class);
+        //jobWC.setOutputKeyClass(Text.class);
+        jobWC.setOutputKeyClass(WordFile.class);
         jobWC.setOutputValueClass(IntWritable.class);
 
         jobWC.setMapperClass(MapClassWC.class); // Map to [wordID 1]
         jobWC.setCombinerClass(IntSumReducer.class);
         jobWC.setReducerClass(IntSumReducer.class);
+
+/*
 
 //        if(dontHaveTrainingData){
 //            jobWC.runOnTrainingData -> trainingfile.txt
@@ -64,11 +67,11 @@ public class Main extends Configured implements Tool {
         
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
+*/
+        FileInputFormat.addInputPaths(jobWC, args[0]);
+        FileOutputFormat.setOutputPath(jobWC, new Path(args[1]));
 
-        FileInputFormat.addInputPaths(job, args[0]);
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        return job.waitForCompletion(true) ? 0 : 1;
+        return jobWC.waitForCompletion(true) ? 0 : 1;
 
     }
 
