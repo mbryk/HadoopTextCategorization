@@ -31,7 +31,10 @@ public class CombineFileLineRecordReaderKNN
 	Text curLine_T = new Text();
 	String curLine_S = new String();
 	//String value_S = new String();
-	String curID = "pg135.txt";
+	String curID = "NF";
+	boolean used = false;
+	boolean haveLine = false;
+	String[] splits = {"n1", "n2"};
 
 	public CombineFileLineRecordReaderKNN(CombineFileSplit split,
 		TaskAttemptContext context, Integer index) throws IOException {
@@ -81,36 +84,52 @@ public class CombineFileLineRecordReaderKNN
 		String value_S = value.toString();
 		int newSize = 0;
 		while (pos < end){
-			newSize = reader.readLine(curLine_T);
-			if (newSize == 0){
-				key = null;
-				value = null;
-				return false;
+			if (!haveLine){
+				newSize = reader.readLine(curLine_T);
+				if (newSize == 0){
+					key = null;
+					value = null;
+					return false;
+				}
+				curLine_S = curLine_T.toString();
+				splits = curLine_S.split(",");
+				pos += newSize;
 			}
-			curLine_S = curLine_T.toString();
-			String[] splits = curLine_S.split(",");
-			pos += newSize;
-
+			else{
+				value = null;
+				value = new Text();
+				value_S = null;
+				value_S = new String();
+				haveLine = false;
+			}
 			if (splits[0].compareTo(curID) == 0){
 				value_S = value_S.concat(splits[1]);
 				value_S = value_S + "=" + splits[2] + ";";
 			}
 			else{
-				key.set(curID);
-				value.set(value_S);
+				if (curID.compareTo("NF") != 0){
+					key.set(curID);
+					value.set(value_S);
+				}
 
 				curID = splits[0];
+				haveLine = true;
 
-				return true;
+				if (curID.compareTo("NF") != 0)
+					return true;
 			}
 		}
-		//key.set(curID);
-		//value.set(value_S);
-		//return true;
-
-		key = null;
-		value = null;
-		return false;
+		if (used == false){
+			key.set(curID);
+			value.set(value_S);
+			used = true;
+			return true;
+		}		
+		else{
+			key = null;
+			value = null;
+			return false;
+		}
     }
 
     public Text getCurrentKey() 
