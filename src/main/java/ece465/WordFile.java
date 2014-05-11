@@ -41,13 +41,13 @@ public class WordFile implements WritableComparable{
 	}
 
 	public String toString(){
-		return this.word + "," + this.fileName;
+		return this.fileName + "," + this.word + ",";
 	}
 
 	public int compareTo(Object o){
 		WordFile other = (WordFile)o;
-		String str1 = this.word + this.fileName;
-		String str2 = other.word + other.fileName;
+		String str1 = this.fileName + this.word;
+		String str2 = other.fileName + other.word;
 		return str1.compareTo(str2);
 	}
 
