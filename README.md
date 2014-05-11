@@ -44,5 +44,3 @@ hadoop fs -copyFromLocal /dir/book-2.txt /tmp/books
 hadoop fs -cat /tmp/rmarano/20140405-2258/part-r-00000
 
 CONGRATULATIONS!  You have run your first map-reduce program on Hadoop.
-
-/rob
