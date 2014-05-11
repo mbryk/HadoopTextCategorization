@@ -4,6 +4,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.lang.Object;
+import java.util.Calendar;
+import java.text.Format;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -30,6 +35,10 @@ import org.apache.hadoop.util.ToolRunner;
 public class Main extends Configured implements Tool {
 
     public int run(String[] args) throws Exception {
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+
+
         Job jobWC = new Job(getConf());
         jobWC.setJarByClass(Main.class);
                 
@@ -45,7 +54,12 @@ public class Main extends Configured implements Tool {
         jobWC.setCombinerClass(IntSumReducer.class);
         jobWC.setReducerClass(IntSumReducer.class);
 
-/*
+        FileInputFormat.addInputPaths(jobWC, args[0]);
+        FileOutputFormat.setOutputPath(jobWC, new Path("/tmp/BookData" + timeStamp));
+
+        if(jobWC.waitForCompletion(true) != true)
+            return -1;
+
 
 //        if(dontHaveTrainingData){
 //            jobWC.runOnTrainingData -> trainingfile.txt
@@ -58,20 +72,22 @@ public class Main extends Configured implements Tool {
         //jobKNN will run on trainingfile.txt
 
         Job jobKNN = new Job(getConf());
+        jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
-        //set the InputFormat of the job to our InputFormat
         jobKNN.setInputFormatClass(InputFormatKNN.class);
 
-        jobKNN.setOutputKeyClass(IntWritable.class);
+        jobKNN.setOutputKeyClass(Text.class);
         jobKNN.setOutputValueClass(IntWritable.class);
         
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
-*/
-        FileInputFormat.addInputPaths(jobWC, args[0]);
-        FileOutputFormat.setOutputPath(jobWC, new Path(args[1]));
+        //jobKNN.setCombinerClass(IntSumReducer.class);
+        //jobKNN.setReducerClass(IntSumReducer.class);
 
-        return jobWC.waitForCompletion(true) ? 0 : 1;
+        FileInputFormat.addInputPaths(jobKNN, "/tmp/BookData" + timeStamp + "/part-r-00000");
+        FileOutputFormat.setOutputPath(jobKNN, new Path(args[1]));
+
+        return jobKNN.waitForCompletion(true) ? 0 : 1;
 
     }
 
