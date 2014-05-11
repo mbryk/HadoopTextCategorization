@@ -1,6 +1,6 @@
 package ece465;
 
-/* CombineFileLineRecordReader.java
+/* CombineFileLineRecordReaderWC.java
 
 Defines for the K/V pair is read into the WC Mapper, reads
 in <WordOffset, Text>.
@@ -16,7 +16,6 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -26,7 +25,7 @@ import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.apache.hadoop.util.LineReader;
 
 
-public class CombineFileLineRecordReader 
+public class CombineFileLineRecordReaderWC
 	extends RecordReader<WordOffset, Text> {
 
 	private long startOffset; //offset of the chunk;
@@ -40,7 +39,7 @@ public class CombineFileLineRecordReader
 	private FSDataInputStream fileIn;
 	private LineReader reader;
 
-	public CombineFileLineRecordReader(CombineFileSplit split,
+	public CombineFileLineRecordReaderWC(CombineFileSplit split,
 		TaskAttemptContext context, Integer index) throws IOException {
 
 		this.path = split.getPath(index);
