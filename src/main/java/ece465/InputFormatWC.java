@@ -9,7 +9,7 @@ WordOffset is defined in WordOffset.java, and will
 give the Mapper both the file name  and the line in
 the file.
 
-CombineFileLineRecordReader.java defines how the keys
+CombineFileLineRecordReaderWC.java defines how the keys
 and values are read in.
 
 */
@@ -30,7 +30,7 @@ public class InputFormatWC
     public RecordReader<WordOffset,Text> createRecordReader(InputSplit split,
         TaskAttemptContext context) throws IOException {
       return new CombineFileRecordReader<WordOffset, Text>(
-        (CombineFileSplit)split, context, CombineFileLineRecordReader.class);
+        (CombineFileSplit)split, context, CombineFileLineRecordReaderWC.class);
     }
 
 }
