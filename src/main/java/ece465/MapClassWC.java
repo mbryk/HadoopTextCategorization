@@ -22,6 +22,7 @@ public class MapClassWC extends
 		throws IOException, InterruptedException{
 
 		String line = value.toString();
+		line = line.replaceAll("[\"(){},.;!?<>%]", "");
 		StringTokenizer itr = new StringTokenizer(line);
 		while (itr.hasMoreTokens()){
 			WordFile wf = new WordFile(key.fileName, itr.nextToken());
