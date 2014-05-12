@@ -6,11 +6,11 @@ Defines the tuple for the value returned from the KNN Mapper: [class, similarity
 
 */
 
-import java.io.IOException;
+import org.apache.hadoop.io.Writable;
+
 import java.io.DataInput;
 import java.io.DataOutput;
-
-import org.apache.hadoop.io.Writable;
+import java.io.IOException;
 
 public class MapOutputKNN implements Writable{
 

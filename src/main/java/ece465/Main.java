@@ -1,36 +1,17 @@
 package ece465;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.lang.Object;
-import java.util.Calendar;
-import java.text.Format;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.lib.input.CombineFileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.CombineFileRecordReader;
-import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.reduce.IntSumReducer;
-import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class Main extends Configured implements Tool {
 
@@ -71,13 +52,14 @@ public class Main extends Configured implements Tool {
 
         //jobKNN will run on trainingfile.txt
 
-        Job jobKNN = new Job(getConf());
+        Job jobKNN;
+        jobKNN = new Job(getConf());
         jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
 
         jobKNN.setOutputKeyClass(IntWritable.class);
-        jobKNN.setOutputValueClass(IntWritable.class);
+        jobKNN.setOutputValueClass(MapOutputKNN.class);
         
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);

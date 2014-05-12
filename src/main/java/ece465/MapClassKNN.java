@@ -6,15 +6,14 @@ It will compare the training case to each of the testCases, and output {testCase
 All of the cases will be period delimited. The word counts will be ";"-delimited, where "word=count".
 */
 
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.util.Map;
-import java.util.HashMap;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class MapClassKNN extends
 	Mapper<IntWritable, Text, IntWritable, MapOutputKNN> {
@@ -35,9 +34,9 @@ public class MapClassKNN extends
 		StringTokenizer cases = new StringTokenizer(line,".");
 
 		// Parse Training Case
-		StringTokenizer words = new StringTokenizer(cases.nextToken(),";");		
+		StringTokenizer words = new StringTokenizer(cases.nextToken(),";");
 
-		while(words.hasMoreTokens()){ 
+		while(words.hasMoreTokens()){
 			String wordcount[] = words.nextToken().split("=");
 			int trainVal = Integer.parseInt(wordcount[1]);
 			wc.put(wordcount[0],trainVal);
