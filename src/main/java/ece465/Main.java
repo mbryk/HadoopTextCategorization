@@ -76,13 +76,11 @@ public class Main extends Configured implements Tool {
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
 
-        jobKNN.setOutputKeyClass(Text.class);
+        jobKNN.setOutputKeyClass(IntWritable.class);
         jobKNN.setOutputValueClass(IntWritable.class);
         
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
-        //jobKNN.setCombinerClass(IntSumReducer.class);
-        //jobKNN.setReducerClass(IntSumReducer.class);
 
         FileInputFormat.addInputPaths(jobKNN, "/tmp/BookData" + timeStamp + "/part-r-00000");
         FileOutputFormat.setOutputPath(jobKNN, new Path(args[1]));

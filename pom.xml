@@ -142,7 +142,7 @@
        <configuration>
         <archive>
           <manifest>
-            <mainClass>ece465.WordCount</mainClass>
+            <mainClass>ece465.Main</mainClass>
           </manifest>
         </archive>
       </configuration>

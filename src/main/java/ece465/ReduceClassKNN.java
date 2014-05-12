@@ -5,25 +5,28 @@ It loops through this array, and finds the class with the highest similarity.
 It returns key=testCaseID,value=class
 */
 
-import org.apache.hadoop.mapreduce.Reducer;
+import java.io.IOException;
 
-public static class ReduceClassKNN extends Reducer<IntWritable, Text, LongWritable, Text> {
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.io.IntWritable;
+
+public class ReduceClassKNN extends Reducer<IntWritable, MapOutputKNN, IntWritable, IntWritable> {
         public void reduce(IntWritable key, Iterable<MapOutputKNN> values, Context context) throws IOException, InterruptedException {
 
-            IntWritable tclass = new IntWritable();
+            IntWritable category = new IntWritable();
            
-			int max = null;
-			int tmpclass = null;
+			int max = -1;
+			int tmpcat = -1;
  
             for (MapOutputKNN val : values) {
-				if(max ==null || val.sim>max){
-					max = val.sim;
-					tmpclass = val.tclass;
+				if(val.similarity>max){
+					max = val.similarity;
+					tmpcat = val.category;
 				}
 			}
 
-			tclass.set(tmpclass);
-            context.write(key, tclass);
-            tclass.clear();
+			category.set(tmpcat);
+            context.write(key, category);
         }
 }

@@ -8,48 +8,65 @@ All of the cases will be period delimited. The word counts will be ";"-delimited
 
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
 
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 public class MapClassKNN extends
-	Mapper<CaseOffset, Text, WCTokenizer, MapOutputKNN> {
+	Mapper<IntWritable, Text, IntWritable, MapOutputKNN> {
 
-	public void map(WordOffset key, Text value, Context context)
+	private Map<String,Integer> wc;
+	private int trainLength = 0;
+
+	private final static IntWritable one
+		= new IntWritable(1);
+
+	public void map(IntWritable key, Text value, Context context)
 		throws IOException, InterruptedException{
+		
+		wc = new HashMap<String,Integer>();
+		int category = key.get();
 
 		String line = value.toString();
 		StringTokenizer cases = new StringTokenizer(line,".");
 
 		// Parse Training Case
 		StringTokenizer words = new StringTokenizer(cases.nextToken(),";");		
+
 		while(words.hasMoreTokens()){ 
-			wordcount = words.nextToken().split("=");
-			trainVal = Integer.parseInt(wordcount[1]);
-			wc.add(wordcount[0],trainVal);
-			length += trainVal^2;
+			String wordcount[] = words.nextToken().split("=");
+			int trainVal = Integer.parseInt(wordcount[1]);
+			wc.put(wordcount[0],trainVal);
+			trainLength += trainVal^2;
 		}
 
 		// Map Each Test Case
 		while(cases.hasMoreTokens()){
-			sim = similarity(cases.nextToken());
-			MapOutputKNN classSim = new MapOutputKNN(key, sim);
-			context.write(testcase, classSim);
+			int sim = similarity(cases.nextToken());
+			MapOutputKNN catSim = new MapOutputKNN(category, sim);
+
+			// Assuming there is only one test case: testCase id = 1
+			context.write(one,catSim);
+			//context.write(testcase, catSim);
 		}
 	}
 
 	private int similarity(String testCase){
 		StringTokenizer words = new StringTokenizer(testCase,";");		
 		int testLength = 0;
+		int cross = 0;
 		while(words.hasMoreTokens()){
-			wordcount = words.nextToken().split("=");
-			trainVal = wc.get(wordcount[0]);
-			testVal = Integer.parseInt(wordcount[1]);
+			String wordcount[] = words.nextToken().split("=");
+			int trainVal = wc.get(wordcount[0]);
+			int testVal = Integer.parseInt(wordcount[1]);
 
-			num += trainVal*testVal;
+			cross += trainVal*testVal;
 			testLength += testVal^2;
 		}
-		return num/(testLength*trainLength);
+		return cross/(testLength*trainLength);
 	}
 }
