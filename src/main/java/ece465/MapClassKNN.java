@@ -80,7 +80,7 @@ public class MapClassKNN extends
 			cross += trainVal*testVal;
 			testLength += Math.pow(testVal, 2);
 		}
-		return cross/(Math.sqrt(testLength)*Math.sqrt(trainLength));
+		return -cross/(Math.sqrt(testLength)*Math.sqrt(trainLength));
 		//return Math.sqrt(trainLength);
 	}
 }

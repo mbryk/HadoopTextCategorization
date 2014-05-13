@@ -124,6 +124,47 @@ public class Main extends Configured implements Tool {
             classLabels.put(myFile, category);
         }
 
+        int k = 5;
+
+        Configuration config = new Configuration();
+        FileSystem hdfs = FileSystem.get(config);
+
+        Path srcPath = new Path(outDir + "/part-r-00000");
+        Path dstPath = new Path("/tmp/" + timeStamp);
+
+        hdfs.copyToLocalFile(srcPath, dstPath);
+
+        Map<String, Integer> knnCounts = new HashMap<String, Integer>();
+        fileReader =  new FileReader("/tmp/" + timeStamp);
+        reader = new BufferedReader(fileReader);
+        line = null;
+        for (int ii = 0; ii < 5; ii++){
+            line = reader.readLine();
+            if (line == null)
+                break;
+            String[] pieces = line.split("\\s");
+            String curLabel = classLabels.get(Integer.parseInt(pieces[1]));
+            if (knnCounts.containsKey(curLabel))
+                knnCounts.put(curLabel, knnCounts.get(curLabel)+1);
+            else
+                knnCounts.put(curLabel, 1);
+        }
+
+        int max = 0;
+        String answer = null;
+        for (Map.Entry<String, Integer> entry : knnCounts.entrySet()) {
+            if (entry.getValue() > max){
+                max = entry.getValue();
+                answer = entry.getKey();
+            }
+        }
+
+        System.out.println("");
+        System.out.println("");
+        System.out.println("Classified as:" + answer);
+        System.out.println("");
+        System.out.println("");
+
         //System.out.println(classLabels.get(1352));
 
         return 0;
