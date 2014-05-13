@@ -21,7 +21,7 @@ public class MapClassKNN extends
 	Mapper<Text, Text, DoubleWritable, IntWritable> {
 
 	private Map<String,Integer> wc;
-	private int trainLength = 0;
+	//private int trainLength = 0;
 
 	private final static IntWritable one
 		= new IntWritable(1);
@@ -30,6 +30,7 @@ public class MapClassKNN extends
 		throws IOException, InterruptedException{
 		
 		wc = new HashMap<String,Integer>();
+		int trainLength = 0;
 
         if (key.getLength() == 0){
             return;
@@ -54,7 +55,7 @@ public class MapClassKNN extends
 		// Map Each Test Case
 		while(test_cases.hasMoreTokens()){
 //			MapOutputKNN catSim = new MapOutputKNN(category);
-            DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken()));
+            DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken(), trainLength));
             IntWritable cat = new IntWritable(category);
 			// Assuming there is only one test case: testCase id = 1
 			context.write(sim, cat);
@@ -62,7 +63,7 @@ public class MapClassKNN extends
 		}
 	}
 
-	private double similarity(String testCase){
+	private double similarity(String testCase, int trainLength){
 		StringTokenizer words = new StringTokenizer(testCase,";");		
 		double testLength = 0;
 		double cross = 0;
@@ -80,5 +81,6 @@ public class MapClassKNN extends
 			testLength += Math.pow(testVal, 2);
 		}
 		return cross/(Math.sqrt(testLength)*Math.sqrt(trainLength));
+		//return Math.sqrt(trainLength);
 	}
 }
