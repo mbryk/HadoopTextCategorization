@@ -141,7 +141,7 @@ public class Main extends Configured implements Tool {
         reader = new BufferedReader(fileReader);
 
 		//reader.readLine(); // Read the key.
- 		PrintWriter printWriter = new PrintWriter("/tmp/textClassificationOutput.txt");
+ 		PrintWriter printWriter = new PrintWriter("/tmp/textClassificationOutput2.txt");
 
 		while( (line=reader.readLine()) != null){
 			String testID = line;
@@ -162,7 +162,7 @@ public class Main extends Configured implements Tool {
 	                answer = entry.getKey();
 	            }
 	        }
-			String str = "./corpus1/test/"+testID.replaceAll("\\s","") + " " +answer;
+			String str = "./corpus2/train/"+testID.replaceAll("\\s","") + " " +answer;
 			printWriter.println(str);
 		}
 		printWriter.close();

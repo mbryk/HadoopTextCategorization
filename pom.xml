@@ -177,10 +177,15 @@
             <argument>/home/hadoop/TC_provided/corpus1/test</argument>
             <argument>/user/hadoop/tested</argument>
             <argument>/home/hadoop/TC_provided/corpus1_train.labels</argument>
+
+            <argument>/user/hadoop/train2</argument>
+            <argument>/home/hadoop/corpus2testdata</argument>
+            <argument>/user/hadoop/tested2</argument>
+            <argument>/home/hadoop/TC_provided/corpus2_train.labels</argument>
 -->
             <argument>/user/hadoop/train</argument>
             <argument>/home/hadoop/TC_provided/corpus1/test</argument>
-            <argument>/user/hadoop/tested2</argument>
+            <argument>/user/hadoop/tested</argument>
             <argument>/home/hadoop/TC_provided/corpus1_train.labels</argument>
 
          </arguments>

@@ -54,13 +54,8 @@ public class MapClassKNN extends
 		while(test_cases.hasMoreTokens()){
 			test_case = test_cases.nextToken().split(":",2);
 			testName = new Text(test_case[0]);
-            //DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken(), trainLength));
-            //IntWritable cat = new IntWritable(category);
 			MapOutputKNN catSim = new MapOutputKNN(category,similarity(test_case[1],trainLength));
-			// Assuming there is only one test case: testCase id = 1
-			//context.write(sim, cat); // TODO: If we want this supporting multiple test cases, then we need that id somewhere here.
 			context.write(testName, catSim);
-			//context.write(one,catSim);
 		}
 	}
 
