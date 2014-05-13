@@ -15,42 +15,39 @@ import java.util.Calendar;
 
 public class Main extends Configured implements Tool {
 
+    public String timeStamp;
+
     public int run(String[] args) throws Exception {
+        //args[0] is training files
+        //args[1] is test file
+        //args[2] is output file
 
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+        String trainingFeatureInputDir;
+        String trainedData;
+        String testFile;
+        String outDir;
+        
+        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
+        if (args[0].compareTo("--featurize") || args[0].compareTo("-f") ){
+            trainingFeatureInputDir = args[1];
+            outDir = args[2];
 
-        Job jobWC = new Job(getConf());
-        jobWC.setJarByClass(Main.class);
-                
-        jobWC.setJobName("WordCount");
+            featurizeTrainingData(trainingFeatureInputDir, outDir);
+        }
+        else if (args[0].compareTo("--trained") || args[0].compareTo("-t")) {
+            trainedData = args[1];
+            testFile = args[2];
+            outDir = args[3];
+        }
+        else{
+            trainingFeatureInputDir = args[0];
+            testFile = args[1];
+            outDir = args[2];
 
-        jobWC.setInputFormatClass(InputFormatWC.class);
-        // the keys are words (strings), the values are counts (ints)
-        //jobWC.setOutputKeyClass(Text.class);
-        jobWC.setOutputKeyClass(WordFile.class);
-        jobWC.setOutputValueClass(IntWritable.class);
+            featurizeTrainingData(trainingFeatureInputDir, "/tmp/trainingData" + timeStamp);
+        }
 
-        jobWC.setMapperClass(MapClassWC.class); // Map to [wordID 1]
-        jobWC.setCombinerClass(IntSumReducer.class);
-        jobWC.setReducerClass(IntSumReducer.class);
-
-        FileInputFormat.addInputPaths(jobWC, args[0]);
-        FileOutputFormat.setOutputPath(jobWC, new Path("/tmp/BookData" + timeStamp));
-
-        if(jobWC.waitForCompletion(true) != true)
-            return -1;
-
-
-//        if(dontHaveTrainingData){
-//            jobWC.runOnTrainingData -> trainingfile.txt
-//        }
-        //jobWC.runOnTestData -> testfile.txt
-
-        // this will output [ID1word=C, ID1word2=C];
-        // Now, input this long vector into jobKNN
-
-        //jobKNN will run on trainingfile.txt
 
         Job jobKNN;
         jobKNN = new Job(getConf());
@@ -64,8 +61,8 @@ public class Main extends Configured implements Tool {
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
 
-        FileInputFormat.addInputPaths(jobKNN, "/tmp/BookData" + timeStamp + "/part-r-00000");
-        FileOutputFormat.setOutputPath(jobKNN, new Path(args[1]));
+        FileInputFormat.addInputPaths(jobKNN, "/tmp/trainingData" + timeStamp + "/part-r-00000");
+        FileOutputFormat.setOutputPath(jobKNN, new Path(args[2]));
 
         return jobKNN.waitForCompletion(true) ? 0 : 1;
 
