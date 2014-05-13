@@ -51,7 +51,8 @@ public class Main extends Configured implements Tool {
     public int run(String[] args) throws Exception {
 
         Job jobKNN;
-        jobKNN = new Job(getConf());
+        Configuration conf = new Configuration();
+        jobKNN = new Job(conf);
 
         String trainingFeatureInputDir;
         String trainedData;
@@ -60,7 +61,7 @@ public class Main extends Configured implements Tool {
         
         timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
-        if (args[0].compareTo("--featurize") || args[0].compareTo("-f") ){
+        if (args[0].compareTo("--featurize") == 0 || args[0].compareTo("-f") == 0){
             trainingFeatureInputDir = args[1];
             outDir = args[2];
 
@@ -68,7 +69,7 @@ public class Main extends Configured implements Tool {
 
             return 0;
         }
-        else if (args[0].compareTo("--trained") || args[0].compareTo("-t")) {
+        else if (args[0].compareTo("--trained") == 0|| args[0].compareTo("-t") == 0) {
             trainedData = args[1];
             testFile = args[2];
             outDir = args[3];
@@ -85,9 +86,6 @@ public class Main extends Configured implements Tool {
         }
 
 
-        Job jobKNN;
-        Configuration conf = new Configuration();
-        jobKNN = new Job(conf);
         jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
