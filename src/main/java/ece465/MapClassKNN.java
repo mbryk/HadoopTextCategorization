@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class MapClassKNN extends
-	Mapper<IntWritable, Text, IntWritable, MapOutputKNN> {
+	Mapper<Text, Text, IntWritable, MapOutputKNN> {
 
 	private Map<String,Integer> wc;
 	private int trainLength = 0;
@@ -24,11 +24,16 @@ public class MapClassKNN extends
 	private final static IntWritable one
 		= new IntWritable(1);
 
-	public void map(IntWritable key, Text value, Context context)
+	public void map(Text key, Text value, Context context)
 		throws IOException, InterruptedException{
 		
 		wc = new HashMap<String,Integer>();
-		int category = key.get();
+
+        if (key.getLength() == 0){
+            return;
+        }
+        String s[] = key.toString().split("\\.");
+		int category = Integer.valueOf(s[0]);
 
 		String line = value.toString();
 		StringTokenizer cases = new StringTokenizer(line,".");
@@ -38,7 +43,7 @@ public class MapClassKNN extends
 
 		while(words.hasMoreTokens()){
 			String wordcount[] = words.nextToken().split("=");
-			int trainVal = Integer.parseInt(wordcount[1]);
+			int trainVal = Integer.parseInt(wordcount[1].replaceAll("\\s",""));
 			wc.put(wordcount[0],trainVal);
 			trainLength += trainVal^2;
 		}
