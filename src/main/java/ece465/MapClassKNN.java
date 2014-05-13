@@ -44,7 +44,7 @@ public class MapClassKNN extends
 			String wordcount[] = words.nextToken().split("=");
 			int trainVal = Integer.parseInt(wordcount[1].replaceAll("\\s","")); // strips out whitespace around number
 			wc.put(wordcount[0],trainVal);
-			trainLength += trainVal^2;
+			trainLength += Math.pow(trainVal, 2);
 		}
 
         Configuration configuration = context.getConfiguration();
@@ -77,8 +77,8 @@ public class MapClassKNN extends
 			int testVal = Integer.parseInt(wordcount[1]);
 
 			cross += trainVal*testVal;
-			testLength += testVal^2;
+			testLength += Math.pow(testVal, 2);
 		}
-		return cross/(testLength*trainLength);
+		return cross/(Math.sqrt(testLength)*Math.sqrt(trainLength));
 	}
 }

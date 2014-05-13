@@ -113,8 +113,10 @@ public class Main extends Configured implements Tool {
         String line;
         Map<String, Integer> hashMap= new HashMap<String, Integer>();
         while ((line = reader.readLine()) != null) {
+            line = line.replaceAll("[\"(){},.;!?<>%]", "");
             String[] words = line.split("\\s");
             for (String word : words) {
+//                word = word.replaceAll("\\.", "");
                 if (hashMap.containsKey(word)) {
                     hashMap.put(word, hashMap.get(word) + 1);
                 } else {
