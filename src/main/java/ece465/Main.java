@@ -58,12 +58,14 @@ public class Main extends Configured implements Tool {
         String trainedData;
         String testFile;
         String outDir;
+        String labelsFile;
         
         timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
         if (args[0].compareTo("--featurize") == 0 || args[0].compareTo("-f") == 0){
             trainingFeatureInputDir = args[1];
             outDir = args[2];
+            labelsFile = args[3];
 
             featurizeTrainingData(trainingFeatureInputDir, outDir);
 
@@ -73,12 +75,13 @@ public class Main extends Configured implements Tool {
             trainedData = args[1];
             testFile = args[2];
             outDir = args[3];
-
+            labelsFile = args[4];
         }
         else{
             trainingFeatureInputDir = args[0];
             testFile = args[1];
             outDir = args[2];
+            labelsFile = args[3];
             trainedData = "/tmp/trainingData" + timeStamp + "/part-r-00000";
 
             featurizeTrainingData(trainingFeatureInputDir, "/tmp/trainingData" + timeStamp);
@@ -103,8 +106,27 @@ public class Main extends Configured implements Tool {
         FileInputFormat.addInputPaths(jobKNN, trainedData);
         FileOutputFormat.setOutputPath(jobKNN, new Path(outDir));
 
-        return jobKNN.waitForCompletion(true) ? 0 : 1;
+        if(jobKNN.waitForCompletion(true) != true)
+             return -1;
 
+
+        Map<Integer, String> classLabels = new HashMap<Integer, String>();
+        FileReader fileReader = new FileReader(labelsFile);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] cl = line.split("\\s");
+            String category = cl[1];
+            String[] file =cl[0].split("\\.");
+            String[] f = file[file.length -2].split("/");
+            String myFile_S = f[f.length - 1];
+            Integer myFile = Integer.parseInt(myFile_S);
+            classLabels.put(myFile, category);
+        }
+
+        //System.out.println(classLabels.get(1352));
+
+        return 0;
     }
 
     public String featurizeTestData(String inputPath) throws IOException {
