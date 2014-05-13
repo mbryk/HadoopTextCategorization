@@ -163,7 +163,6 @@ public class Main extends Configured implements Tool {
 	            }
 	        }
 			String str = "./corpus1/test/"+testID.replaceAll("\\s","") + " " +answer;
-			System.out.println(str);
 			printWriter.println(str);
 		}
 		printWriter.close();
