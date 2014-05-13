@@ -96,7 +96,6 @@ public class CombineFileLineRecordReaderKNN
 			else{
 				value = null;
 				value = new Text();
-				value_S = null;
 				value_S = new String();
 				haveLine = false;
 			}

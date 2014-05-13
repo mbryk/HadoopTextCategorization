@@ -6,6 +6,8 @@ It will compare the training case to each of the testCases, and output {testCase
 All of the cases will be period delimited. The word counts will be ";"-delimited, where "word=count".
 */
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -16,7 +18,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class MapClassKNN extends
-	Mapper<Text, Text, IntWritable, MapOutputKNN> {
+	Mapper<Text, Text, DoubleWritable, IntWritable> {
 
 	private Map<String,Integer> wc;
 	private int trainLength = 0;
@@ -35,37 +37,43 @@ public class MapClassKNN extends
         String s[] = key.toString().split("\\.");
 		int category = Integer.valueOf(s[0]);
 
-		String line = value.toString();
-		StringTokenizer cases = new StringTokenizer(line,".");
-
 		// Parse Training Case
-		StringTokenizer words = new StringTokenizer(cases.nextToken(),";");
+		StringTokenizer words = new StringTokenizer(value.toString(),";");
 
 		while(words.hasMoreTokens()){
 			String wordcount[] = words.nextToken().split("=");
-			int trainVal = Integer.parseInt(wordcount[1].replaceAll("\\s",""));
+			int trainVal = Integer.parseInt(wordcount[1].replaceAll("\\s","")); // strips out whitespace around number
 			wc.put(wordcount[0],trainVal);
 			trainLength += trainVal^2;
 		}
 
-		// Map Each Test Case
-		while(cases.hasMoreTokens()){
-			int sim = similarity(cases.nextToken());
-			MapOutputKNN catSim = new MapOutputKNN(category, sim);
+        Configuration configuration = context.getConfiguration();
+        String test = configuration.get("test_cases");
+        StringTokenizer test_cases = new StringTokenizer(test, ".");
 
+		// Map Each Test Case
+		while(test_cases.hasMoreTokens()){
+//			MapOutputKNN catSim = new MapOutputKNN(category);
+            DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken()));
+            IntWritable cat = new IntWritable(category);
 			// Assuming there is only one test case: testCase id = 1
-			context.write(one,catSim);
+			context.write(sim, cat);
 			//context.write(testcase, catSim);
 		}
 	}
 
-	private int similarity(String testCase){
+	private double similarity(String testCase){
 		StringTokenizer words = new StringTokenizer(testCase,";");		
-		int testLength = 0;
-		int cross = 0;
+		double testLength = 0;
+		double cross = 0;
 		while(words.hasMoreTokens()){
-			String wordcount[] = words.nextToken().split("=");
-			int trainVal = wc.get(wordcount[0]);
+            String word = words.nextToken();
+			String wordcount[] = word.split("=");
+
+			int trainVal = 0;
+            if (wc.containsKey(wordcount[0])){
+                trainVal = wc.get(wordcount[0]);
+            }
 			int testVal = Integer.parseInt(wordcount[1]);
 
 			cross += trainVal*testVal;

@@ -1,7 +1,11 @@
 package ece465;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -10,6 +14,9 @@ import org.apache.hadoop.mapreduce.lib.reduce.IntSumReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -50,13 +57,14 @@ public class Main extends Configured implements Tool {
 
 
         Job jobKNN;
-        jobKNN = new Job(getConf());
+        Configuration conf = new Configuration();
+        jobKNN = new Job(conf);
         jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
 
-        jobKNN.setOutputKeyClass(IntWritable.class);
-        jobKNN.setOutputValueClass(MapOutputKNN.class);
+        jobKNN.setOutputKeyClass(DoubleWritable.class);
+        jobKNN.setOutputValueClass(IntWritable.class);
         
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
@@ -66,6 +74,11 @@ public class Main extends Configured implements Tool {
 
         return jobKNN.waitForCompletion(true) ? 0 : 1;
 
+    }
+
+
+    public String featurizeTestData(String inputPath) throws IOException {
+        
     }
 
     public static void main(String[] args) throws Exception {
