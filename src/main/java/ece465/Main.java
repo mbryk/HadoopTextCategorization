@@ -38,9 +38,9 @@ public class Main extends Configured implements Tool {
     }
 
     public int run(String[] args) throws Exception {
-        //args[0] is training files
-        //args[1] is test file
-        //args[2] is output file
+
+        Job jobKNN;
+        jobKNN = new Job(getConf());
 
         String trainingFeatureInputDir;
         String trainedData;
@@ -61,6 +61,8 @@ public class Main extends Configured implements Tool {
             trainedData = args[1];
             testFile = args[2];
             outDir = args[3];
+
+            FileInputFormat.addInputPaths(jobKNN, trainedData);
         }
         else{
             trainingFeatureInputDir = args[0];
@@ -68,10 +70,9 @@ public class Main extends Configured implements Tool {
             outDir = args[2];
 
             featurizeTrainingData(trainingFeatureInputDir, "/tmp/trainingData" + timeStamp);
+            FileInputFormat.addInputPaths(jobKNN, "/tmp/trainingData" + timeStamp + "/part-r-00000");
         }
 
-        Job jobKNN;
-        jobKNN = new Job(getConf());
         jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
@@ -82,8 +83,7 @@ public class Main extends Configured implements Tool {
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
 
-        FileInputFormat.addInputPaths(jobKNN, "/tmp/trainingData" + timeStamp + "/part-r-00000");
-        FileOutputFormat.setOutputPath(jobKNN, new Path(args[2]));
+        FileOutputFormat.setOutputPath(jobKNN, new Path(outDir));
 
         return jobKNN.waitForCompletion(true) ? 0 : 1;
 
