@@ -165,7 +165,7 @@
        <argument>${basedir}/target/${project.artifactId}-${project.version}.jar</argument>
              <argument>/user/hadoop/gutenberg/</argument>
              <argument>/home/rgruener/Documents/cooper/CLOUD_ECE465/HadoopTextCategorization/gutenburg/corpus2/train/27010.first</argument>
-             <argument>/user/hadoop/out/2710.first</argument>
+             <argument>/user/hadoop/out/2710.first${maven.build.timestamp}</argument>
          </arguments>
        </configuration>
 <!--
