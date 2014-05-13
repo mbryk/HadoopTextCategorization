@@ -14,6 +14,7 @@ import org.apache.hadoop.mapreduce.lib.reduce.IntSumReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -136,59 +137,63 @@ public class Main extends Configured implements Tool {
 
         hdfs.copyToLocalFile(srcPath, dstPath);
 
-        Map<String, Integer> knnCounts = new HashMap<String, Integer>();
         fileReader =  new FileReader("/tmp/" + timeStamp);
         reader = new BufferedReader(fileReader);
 
-        line = null;
-		reader.readLine(); // Read the key.
+		//reader.readLine(); // Read the key.
 		while( (line=reader.readLine()) != null){
-			System.out.println(line); // Print K nearest
-			String curLabel = classLabels.get(Integer.parseInt(line));
-			if (knnCounts.containsKey(curLabel))
-                knnCounts.put(curLabel, knnCounts.get(curLabel)+1);
-            else
-                knnCounts.put(curLabel, 1);
+			String testID = line;
+			Map<String, Integer> knnCounts = new HashMap<String, Integer>();
+			for(int j=0;j<k;j++){
+				line = reader.readLine();
+				String curLabel = classLabels.get(Integer.parseInt(line));
+				if (knnCounts.containsKey(curLabel))
+	                knnCounts.put(curLabel, knnCounts.get(curLabel)+1);
+	            else
+	                knnCounts.put(curLabel, 1);
+			}
+			int max = 0;
+	        String answer = null;
+	        for (Map.Entry<String, Integer> entry : knnCounts.entrySet()) {
+	            if (entry.getValue() > max){
+	                max = entry.getValue();
+	                answer = entry.getKey();
+	            }
+	        }
+			System.out.println("File #"+line+" is classified as "+answer);
 		}
-
-        int max = 0;
-        String answer = null;
-        for (Map.Entry<String, Integer> entry : knnCounts.entrySet()) {
-            if (entry.getValue() > max){
-                max = entry.getValue();
-                answer = entry.getKey();
-            }
-        }
-
-        System.out.println("");
-        System.out.println("Classified as:" + answer);
-        System.out.println("");
-
         return 0;
     }
 
-    public String featurizeTestData(String inputPath) throws IOException {
-        FileReader fileReader = new FileReader(inputPath);
-        BufferedReader reader = new BufferedReader(fileReader);
-        String line;
-        Map<String, Integer> hashMap= new HashMap<String, Integer>();
-        while ((line = reader.readLine()) != null) {
-            line = line.replaceAll("[\"(){},.;!?<>%]", "");
-            String[] words = line.split("\\s");
-            for (String word : words) {
-//                word = word.replaceAll("\\.", "");
-                if (hashMap.containsKey(word)) {
-                    hashMap.put(word, hashMap.get(word) + 1);
-                } else {
-                    hashMap.put(word, 1);
-                }
-            }
-        }
-
-        String output = "";
-        for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
-            output += entry.getKey() + "=" + entry.getValue() + ";";
-        }
+    public String featurizeTestData(String inputDir) throws IOException {
+		String output = "";
+		int i = 0;
+		File dir = new File(inputDir);
+		for (File f : dir.listFiles()) {
+		    FileReader fileReader = new FileReader(f);
+		    BufferedReader reader = new BufferedReader(fileReader);
+		    String line;
+		    Map<String, Integer> hashMap= new HashMap<String, Integer>();
+		    while ((line = reader.readLine()) != null) {
+		        line = line.replaceAll("[\"(){},.;!?<>%:=]", "");
+		        String[] words = line.split("\\s");
+		        for (String word : words) {
+	//                word = word.replaceAll("\\.", "");
+		            if (hashMap.containsKey(word)) {
+		                hashMap.put(word, hashMap.get(word) + 1);
+		            } else {
+		                hashMap.put(word, 1);
+		            }
+		        }
+		    }
+		    output += i + ":";
+		    for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
+		        output += entry.getKey() + "=" + entry.getValue() + ";";
+		    }
+			output += ".";
+			i++;
+		}
+		//System.out.println(output);
         return output;
     }
 

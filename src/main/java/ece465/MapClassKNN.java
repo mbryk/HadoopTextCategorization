@@ -53,14 +53,18 @@ public class MapClassKNN extends
         StringTokenizer test_cases = new StringTokenizer(test, ".");
 
 		// Map Each Test Case
+		IntWritable testID;
+		String[] test_case;
 		while(test_cases.hasMoreTokens()){
+			test_case = test_cases.nextToken().split(":",2);
+			testID = new IntWritable(Integer.parseInt(test_case[0]));
             //DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken(), trainLength));
             //IntWritable cat = new IntWritable(category);
-			MapOutputKNN catSim = new MapOutputKNN(category,similarity(test_cases.nextToken(),trainLength));
+			MapOutputKNN catSim = new MapOutputKNN(category,similarity(test_case[1],trainLength));
 			// Assuming there is only one test case: testCase id = 1
 			//context.write(sim, cat); // TODO: If we want this supporting multiple test cases, then we need that id somewhere here.
-			//context.write(testcase, catSim);
-			context.write(one,catSim);
+			context.write(testID, catSim);
+			//context.write(one,catSim);
 		}
 	}
 
