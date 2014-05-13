@@ -29,6 +29,14 @@ public class WordFile implements WritableComparable{
 		this(null, null);
 	}
 
+	public String getWord(){
+		return this.word;
+	}
+
+	public String getFileName(){
+		return this.fileName;
+	}
+
 	public void write(DataOutput out) throws IOException{
 		Text.writeString(out, word);
 		Text.writeString(out, fileName);

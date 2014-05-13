@@ -60,6 +60,16 @@ public class CombineFileLineRecordReaderKNN
 
     public void initialize(InputSplit split, TaskAttemptContext context)
         throws IOException, InterruptedException {
+/*
+        FSDataInputStream testIn = fs.open("/tmp/testData" + Main.timeStamp + "/part-r-00000");
+        LineReader testReader = new LineReader(testIn);
+        Text testCurLine_T = new Text();
+        String testCurLine_S = new String();
+
+        while (testReader.readLine(testCurLine_T) != 0){
+
+        }
+    */
     }
 
     public void close() throws IOException { }

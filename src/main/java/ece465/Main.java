@@ -24,10 +24,34 @@ public class Main extends Configured implements Tool {
 
     public String timeStamp;
 
+    public int featurizeTrainingData(String inputDir, String outputDir) throws InterruptedException, IOException, ClassNotFoundException {
+        Job jobWC_train = new Job(getConf());
+        jobWC_train.setJarByClass(Main.class);
+                
+        jobWC_train.setJobName("WordCount");
+
+        jobWC_train.setInputFormatClass(InputFormatWC.class);
+        jobWC_train.setOutputKeyClass(WordFile.class);
+        jobWC_train.setOutputValueClass(IntWritable.class);
+
+        jobWC_train.setMapperClass(MapClassWC.class); // Map to [wordID 1]
+        jobWC_train.setCombinerClass(IntSumReducer.class);
+        jobWC_train.setReducerClass(IntSumReducer.class);
+
+        try {
+            FileInputFormat.addInputPaths(jobWC_train, inputDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileOutputFormat.setOutputPath(jobWC_train, new Path(outputDir));
+
+        return jobWC_train.waitForCompletion(true) ? 0 : 1;
+    }
+
     public int run(String[] args) throws Exception {
-        //args[0] is training files
-        //args[1] is test file
-        //args[2] is output file
+
+        Job jobKNN;
+        jobKNN = new Job(getConf());
 
         String trainingFeatureInputDir;
         String trainedData;
@@ -41,11 +65,15 @@ public class Main extends Configured implements Tool {
             outDir = args[2];
 
             featurizeTrainingData(trainingFeatureInputDir, outDir);
+
+            return 0;
         }
         else if (args[0].compareTo("--trained") || args[0].compareTo("-t")) {
             trainedData = args[1];
             testFile = args[2];
             outDir = args[3];
+
+            FileInputFormat.addInputPaths(jobKNN, trainedData);
         }
         else{
             trainingFeatureInputDir = args[0];
@@ -53,6 +81,7 @@ public class Main extends Configured implements Tool {
             outDir = args[2];
 
             featurizeTrainingData(trainingFeatureInputDir, "/tmp/trainingData" + timeStamp);
+            FileInputFormat.addInputPaths(jobKNN, "/tmp/trainingData" + timeStamp + "/part-r-00000");
         }
 
 
@@ -69,8 +98,7 @@ public class Main extends Configured implements Tool {
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
 
-        FileInputFormat.addInputPaths(jobKNN, "/tmp/trainingData" + timeStamp + "/part-r-00000");
-        FileOutputFormat.setOutputPath(jobKNN, new Path(args[2]));
+        FileOutputFormat.setOutputPath(jobKNN, new Path(outDir));
 
         return jobKNN.waitForCompletion(true) ? 0 : 1;
 
