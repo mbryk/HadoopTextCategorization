@@ -15,10 +15,14 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Main extends Configured implements Tool {
 
@@ -50,10 +54,6 @@ public class Main extends Configured implements Tool {
 
     public int run(String[] args) throws Exception {
 
-        Job jobKNN;
-        Configuration conf = new Configuration();
-        jobKNN = new Job(conf);
-
         String trainingFeatureInputDir;
         String trainedData;
         String testFile;
@@ -74,18 +74,22 @@ public class Main extends Configured implements Tool {
             testFile = args[2];
             outDir = args[3];
 
-            FileInputFormat.addInputPaths(jobKNN, trainedData);
         }
         else{
             trainingFeatureInputDir = args[0];
             testFile = args[1];
             outDir = args[2];
+            trainedData = "/tmp/trainingData" + timeStamp + "/part-r-00000";
 
             featurizeTrainingData(trainingFeatureInputDir, "/tmp/trainingData" + timeStamp);
-            FileInputFormat.addInputPaths(jobKNN, "/tmp/trainingData" + timeStamp + "/part-r-00000");
         }
 
 
+        Job jobKNN;
+        Configuration conf = new Configuration();
+        String testCases = featurizeTestData(testFile);
+        conf.set("test_cases", testCases);
+        jobKNN = new Job(conf);
         jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
@@ -96,15 +100,34 @@ public class Main extends Configured implements Tool {
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
 
+        FileInputFormat.addInputPaths(jobKNN, trainedData);
         FileOutputFormat.setOutputPath(jobKNN, new Path(outDir));
 
         return jobKNN.waitForCompletion(true) ? 0 : 1;
 
     }
 
-
     public String featurizeTestData(String inputPath) throws IOException {
-        
+        FileReader fileReader = new FileReader(inputPath);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line;
+        Map<String, Integer> hashMap= new HashMap<String, Integer>();
+        while ((line = reader.readLine()) != null) {
+            String[] words = line.split("\\s");
+            for (String word : words) {
+                if (hashMap.containsKey(word)) {
+                    hashMap.put(word, hashMap.get(word) + 1);
+                } else {
+                    hashMap.put(word, 1);
+                }
+            }
+        }
+
+        String output = "";
+        for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
+            output += entry.getKey() + "=" + entry.getValue() + ";";
+        }
+        return output;
     }
 
     public static void main(String[] args) throws Exception {
