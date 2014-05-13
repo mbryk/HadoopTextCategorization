@@ -46,7 +46,7 @@ public class MapClassKNN extends
 
         Configuration configuration = context.getConfiguration();
         String test = configuration.get("test_cases");
-        StringTokenizer test_cases = new StringTokenizer(test, ".");
+        StringTokenizer test_cases = new StringTokenizer(test, ",");
 
 		// Map Each Test Case
 		Text testName;

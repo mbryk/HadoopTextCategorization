@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -66,7 +67,6 @@ public class Main extends Configured implements Tool {
         if (args[0].compareTo("--featurize") == 0 || args[0].compareTo("-f") == 0){
             trainingFeatureInputDir = args[1];
             outDir = args[2];
-            labelsFile = args[3];
 
             featurizeTrainingData(trainingFeatureInputDir, outDir);
 
@@ -141,6 +141,8 @@ public class Main extends Configured implements Tool {
         reader = new BufferedReader(fileReader);
 
 		//reader.readLine(); // Read the key.
+ 		PrintWriter printWriter = new PrintWriter("/tmp/textClassificationOutput.txt");
+
 		while( (line=reader.readLine()) != null){
 			String testID = line;
 			Map<String, Integer> knnCounts = new HashMap<String, Integer>();
@@ -160,8 +162,11 @@ public class Main extends Configured implements Tool {
 	                answer = entry.getKey();
 	            }
 	        }
-			System.out.println("File "+line+" is classified as "+answer);
+			String str = "./corpus1/test/"+testID.replaceAll("\\s","") + " " +answer;
+			System.out.println(str);
+			printWriter.println(str);
 		}
+		printWriter.close();
         return 0;
     }
 
@@ -185,12 +190,12 @@ public class Main extends Configured implements Tool {
 		            }
 		        }
 		    }
-			String name = f.getName().replaceAll("[\"(){},.!?<>%:]","");
+			String name = f.getName().replaceAll("[\"(){},!?<>%:]","");
 		    output += name + ":";
 		    for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
 		        output += entry.getKey() + "=" + entry.getValue() + ";";
 		    }
-			output += ".";
+			output += ",";
 			i++;
 		}
 		//System.out.println(output);
