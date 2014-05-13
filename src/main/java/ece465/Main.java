@@ -5,8 +5,8 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -96,9 +96,10 @@ public class Main extends Configured implements Tool {
         jobKNN.setJarByClass(Main.class);
         jobKNN.setJobName("KNN");
         jobKNN.setInputFormatClass(InputFormatKNN.class);
+		jobKNN.setMapOutputValueClass(MapOutputKNN.class);
 
-        jobKNN.setOutputKeyClass(DoubleWritable.class);
-        jobKNN.setOutputValueClass(IntWritable.class);
+        jobKNN.setOutputKeyClass(IntWritable.class);
+        jobKNN.setOutputValueClass(Text.class);
         
         jobKNN.setMapperClass(MapClassKNN.class);
         jobKNN.setReducerClass(ReduceClassKNN.class);
@@ -124,6 +125,7 @@ public class Main extends Configured implements Tool {
             classLabels.put(myFile, category);
         }
 
+
         int k = 5;
 
         Configuration config = new Configuration();
@@ -137,18 +139,17 @@ public class Main extends Configured implements Tool {
         Map<String, Integer> knnCounts = new HashMap<String, Integer>();
         fileReader =  new FileReader("/tmp/" + timeStamp);
         reader = new BufferedReader(fileReader);
+
         line = null;
-        for (int ii = 0; ii < 5; ii++){
-            line = reader.readLine();
-            if (line == null)
-                break;
-            String[] pieces = line.split("\\s");
-            String curLabel = classLabels.get(Integer.parseInt(pieces[1]));
-            if (knnCounts.containsKey(curLabel))
+		reader.readLine(); // Read the key.
+		while( (line=reader.readLine()) != null){
+			System.out.println(line); // Print K nearest
+			String curLabel = classLabels.get(Integer.parseInt(line));
+			if (knnCounts.containsKey(curLabel))
                 knnCounts.put(curLabel, knnCounts.get(curLabel)+1);
             else
                 knnCounts.put(curLabel, 1);
-        }
+		}
 
         int max = 0;
         String answer = null;
@@ -160,12 +161,8 @@ public class Main extends Configured implements Tool {
         }
 
         System.out.println("");
-        System.out.println("");
         System.out.println("Classified as:" + answer);
         System.out.println("");
-        System.out.println("");
-
-        //System.out.println(classLabels.get(1352));
 
         return 0;
     }

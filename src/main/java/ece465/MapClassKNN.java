@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class MapClassKNN extends
-	Mapper<Text, Text, DoubleWritable, IntWritable> {
+	Mapper<Text, Text, IntWritable, MapOutputKNN> {
 
 	private Map<String,Integer> wc;
 	//private int trainLength = 0;
@@ -54,12 +54,13 @@ public class MapClassKNN extends
 
 		// Map Each Test Case
 		while(test_cases.hasMoreTokens()){
-//			MapOutputKNN catSim = new MapOutputKNN(category);
-            DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken(), trainLength));
-            IntWritable cat = new IntWritable(category);
+            //DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken(), trainLength));
+            //IntWritable cat = new IntWritable(category);
+			MapOutputKNN catSim = new MapOutputKNN(category,similarity(test_cases.nextToken(),trainLength));
 			// Assuming there is only one test case: testCase id = 1
-			context.write(sim, cat);
+			//context.write(sim, cat); // TODO: If we want this supporting multiple test cases, then we need that id somewhere here.
 			//context.write(testcase, catSim);
+			context.write(one,catSim);
 		}
 	}
 
@@ -80,7 +81,7 @@ public class MapClassKNN extends
 			cross += trainVal*testVal;
 			testLength += Math.pow(testVal, 2);
 		}
-		return -cross/(Math.sqrt(testLength)*Math.sqrt(trainLength));
+		return cross/(Math.sqrt(testLength)*Math.sqrt(trainLength));
 		//return Math.sqrt(trainLength);
 	}
 }

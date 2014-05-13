@@ -15,9 +15,9 @@ import java.io.IOException;
 public class MapOutputKNN implements Writable{
 
 	public int category;
-	public int similarity;
+	public double similarity;
 
-	public MapOutputKNN(int cat, int sim){
+	public MapOutputKNN(int cat, double sim){
 		category = cat;
 		similarity = sim;
 	}
@@ -28,15 +28,20 @@ public class MapOutputKNN implements Writable{
 
 	public void write(DataOutput out) throws IOException{
 		out.writeInt(category);
-		out.writeInt(similarity);
+		out.writeDouble(similarity);
 	}
 
 	public void readFields(DataInput in) throws IOException{
 		category = in.readInt();
-		similarity = in.readInt();
+		similarity = in.readDouble();
 	}
 
 	public String toString(){
 		return this.category + "," + this.similarity + ",";
 	}
+
+	public MapOutputKNN clone(){
+		return new MapOutputKNN(category,similarity);
+	}
+		
 }
