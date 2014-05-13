@@ -8,7 +8,6 @@ All of the cases will be period delimited. The word counts will be ";"-delimited
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -18,13 +17,10 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class MapClassKNN extends
-	Mapper<Text, Text, IntWritable, MapOutputKNN> {
+	Mapper<Text, Text, Text, MapOutputKNN> {
 
 	private Map<String,Integer> wc;
 	//private int trainLength = 0;
-
-	private final static IntWritable one
-		= new IntWritable(1);
 
 	public void map(Text key, Text value, Context context)
 		throws IOException, InterruptedException{
@@ -53,17 +49,17 @@ public class MapClassKNN extends
         StringTokenizer test_cases = new StringTokenizer(test, ".");
 
 		// Map Each Test Case
-		IntWritable testID;
+		Text testName;
 		String[] test_case;
 		while(test_cases.hasMoreTokens()){
 			test_case = test_cases.nextToken().split(":",2);
-			testID = new IntWritable(Integer.parseInt(test_case[0]));
+			testName = new Text(test_case[0]);
             //DoubleWritable sim = new DoubleWritable(similarity(test_cases.nextToken(), trainLength));
             //IntWritable cat = new IntWritable(category);
 			MapOutputKNN catSim = new MapOutputKNN(category,similarity(test_case[1],trainLength));
 			// Assuming there is only one test case: testCase id = 1
 			//context.write(sim, cat); // TODO: If we want this supporting multiple test cases, then we need that id somewhere here.
-			context.write(testID, catSim);
+			context.write(testName, catSim);
 			//context.write(one,catSim);
 		}
 	}

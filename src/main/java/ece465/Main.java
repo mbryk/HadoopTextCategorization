@@ -99,7 +99,7 @@ public class Main extends Configured implements Tool {
         jobKNN.setInputFormatClass(InputFormatKNN.class);
 		jobKNN.setMapOutputValueClass(MapOutputKNN.class);
 
-        jobKNN.setOutputKeyClass(IntWritable.class);
+        jobKNN.setOutputKeyClass(Text.class);
         jobKNN.setOutputValueClass(Text.class);
         
         jobKNN.setMapperClass(MapClassKNN.class);
@@ -160,7 +160,7 @@ public class Main extends Configured implements Tool {
 	                answer = entry.getKey();
 	            }
 	        }
-			System.out.println("File #"+line+" is classified as "+answer);
+			System.out.println("File "+line+" is classified as "+answer);
 		}
         return 0;
     }
@@ -178,7 +178,6 @@ public class Main extends Configured implements Tool {
 		        line = line.replaceAll("[\"(){},.;!?<>%:=]", "");
 		        String[] words = line.split("\\s");
 		        for (String word : words) {
-	//                word = word.replaceAll("\\.", "");
 		            if (hashMap.containsKey(word)) {
 		                hashMap.put(word, hashMap.get(word) + 1);
 		            } else {
@@ -186,7 +185,8 @@ public class Main extends Configured implements Tool {
 		            }
 		        }
 		    }
-		    output += i + ":";
+			String name = f.getName().replaceAll("[\"(){},.!?<>%:]","");
+		    output += name + ":";
 		    for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
 		        output += entry.getKey() + "=" + entry.getValue() + ";";
 		    }

@@ -15,9 +15,9 @@ import java.util.Queue;
 import java.util.Comparator;
 import java.util.ArrayList;
 
-public class ReduceClassKNN extends Reducer<IntWritable, MapOutputKNN, IntWritable, Text> {
+public class ReduceClassKNN extends Reducer<Text, MapOutputKNN, Text, Text> {
 		public static int limit = 5;
-        public void reduce(IntWritable key, Iterable<MapOutputKNN> values, Context context) throws IOException, InterruptedException {
+        public void reduce(Text key, Iterable<MapOutputKNN> values, Context context) throws IOException, InterruptedException {
 			Queue<MapOutputKNN> topCategories = new PriorityQueue<MapOutputKNN>(limit+1, similarityCompare);    
 
             for (MapOutputKNN val : values) {
