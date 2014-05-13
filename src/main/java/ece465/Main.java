@@ -17,6 +17,26 @@ public class Main extends Configured implements Tool {
 
     public String timeStamp;
 
+    public int featurizeTrainingData(String inputDir, String outputDir){
+        Job jobWC_train = new Job(getConf());
+        jobWC_train.setJarByClass(Main.class);
+                
+        jobWC_train.setJobName("WordCount");
+
+        jobWC_train.setInputFormatClass(InputFormatWC.class);
+        jobWC_train.setOutputKeyClass(WordFile.class);
+        jobWC_train.setOutputValueClass(IntWritable.class);
+
+        jobWC_train.setMapperClass(MapClassWC.class); // Map to [wordID 1]
+        jobWC_train.setCombinerClass(IntSumReducer.class);
+        jobWC_train.setReducerClass(IntSumReducer.class);
+
+        FileInputFormat.addInputPaths(jobWC_train, inputDir);
+        FileOutputFormat.setOutputPath(jobWC_train, new Path(outputDir));
+
+        return jobWC_train.waitForCompletion(true) ? 0 : 1;
+    }
+
     public int run(String[] args) throws Exception {
         //args[0] is training files
         //args[1] is test file
@@ -34,6 +54,8 @@ public class Main extends Configured implements Tool {
             outDir = args[2];
 
             featurizeTrainingData(trainingFeatureInputDir, outDir);
+
+            return 0;
         }
         else if (args[0].compareTo("--trained") || args[0].compareTo("-t")) {
             trainedData = args[1];
@@ -47,7 +69,6 @@ public class Main extends Configured implements Tool {
 
             featurizeTrainingData(trainingFeatureInputDir, "/tmp/trainingData" + timeStamp);
         }
-
 
         Job jobKNN;
         jobKNN = new Job(getConf());

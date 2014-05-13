@@ -16,9 +16,9 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 import ece465.WordFile;
 
-public class OutputFormatWC<WordFile, IntWritable> extends FileOutputFormat {
+public class OutputFormatWC extends FileOutputFormat<WordFile, IntWritable> {
 
-  protected static class RecordWriterWC<WordFile, IntWritable>
+  protected static class RecordWriterWC<WordFile, IntWritable> 
     implements RecordWriter<WordFile, IntWritable> {
     
     private static final String utf8 = "UTF-8";
@@ -52,18 +52,6 @@ public class OutputFormatWC<WordFile, IntWritable> extends FileOutputFormat {
 
     public synchronized void write(WordFile key, IntWritable value) throws IOException {
 
-      boolean nullKey = key == null || key instanceof NullWritable;
-      boolean nullValue = value == null || value instanceof NullWritable;
-
-      if (nullKey && nullValue) {
-        return;
-      }
-
-      Object keyObj = key;
-
-      if (nullKey) {
-        keyObj = "value";
-      }
 
       if (key instanceof WordFile && value instanceof IntWritable){
         if (key.getFileName().compareTo(currentFile) != 0){
